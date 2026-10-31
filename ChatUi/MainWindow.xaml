@@ -1,0 +1,271 @@
+<Window x:Class="ChatUi.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Huddle"
+        Width="1080"
+        Height="720"
+        MinWidth="820"
+        MinHeight="560"
+        Background="#0B1220"
+        Foreground="#E2E8F0"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#2563EB" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#111C2E" />
+            <Setter Property="Foreground" Value="#F8FAFC" />
+            <Setter Property="BorderBrush" Value="#334155" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="CaretBrush" Value="#F8FAFC" />
+        </Style>
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="2" />
+        </Style>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="Margin" Value="0,1" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="#111C2E"
+                BorderBrush="#243247"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="18"
+                Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Huddle"
+                               FontSize="24"
+                               FontWeight="Bold" />
+                </StackPanel>
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}"
+                               Foreground="#CBD5E1"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0" />
+                    <TextBox Text="{Binding ServerHost, UpdateSourceTrigger=PropertyChanged}"
+                             Width="140"
+                             Margin="0,0,8,0"
+                             ToolTip="Server hostname or IP address" />
+                    <Button Content="Connect"
+                            IsEnabled="{Binding CanConnect}"
+                            Click="Connect_Click" />
+                    <Button Content="Host"
+                            IsEnabled="{Binding CanHost}"
+                            Click="Host_Click" />
+                    <Button Content="Disconnect"
+                            Background="#334155"
+                            IsEnabled="{Binding IsConnected}"
+                            Margin="0"
+                            Click="Disconnect_Click" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Background="#111C2E"
+                    BorderBrush="#243247"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="14">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top">
+                        <TextBlock Text="ROOMS"
+                                   Foreground="#94A3B8"
+                                   FontSize="12"
+                                   FontWeight="Bold" />
+                        <TextBlock Text="{Binding CurrentRoom, StringFormat=Current room: {0}}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Margin="0,6,0,10" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Refresh"
+                                    Background="#334155"
+                                    IsEnabled="{Binding IsConnected}"
+                                    Click="RefreshRooms_Click" />
+                            <Button Content="Join selected"
+                                    IsEnabled="{Binding IsConnected}"
+                                    Margin="0"
+                                    Click="JoinRoom_Click" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Bottom">
+                        <Button Content="Leave current room"
+                                Background="#334155"
+                                IsEnabled="{Binding IsConnected}"
+                                Margin="0,0,0,18"
+                                Click="LeaveRoom_Click" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="USERS HERE"
+                                       Foreground="#94A3B8"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                            <Button Grid.Column="1"
+                                    Content="Refresh"
+                                    Background="#334155"
+                                    Margin="0"
+                                    IsEnabled="{Binding IsConnected}"
+                                    Click="RefreshUsers_Click" />
+                        </Grid>
+                        <ListBox ItemsSource="{Binding Users}"
+                                 MaxHeight="150"
+                                 Margin="0,8,0,0" />
+                    </StackPanel>
+
+                    <ListBox ItemsSource="{Binding Rooms}"
+                             SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
+                             Margin="0,8,0,12" />
+                </DockPanel>
+            </Border>
+
+            <TabControl Grid.Column="2"
+                        Background="#111C2E"
+                        Foreground="#E2E8F0">
+                <TabItem Header="Conversation">
+                    <Border Background="#111C2E"
+                            Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                                <TextBlock Text="Conversation"
+                                           FontSize="18"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Text="Messages are visible to other clients in this room."
+                                           Foreground="#94A3B8"
+                                           Margin="0,3,0,0" />
+                            </StackPanel>
+
+                            <ListBox Grid.Row="1"
+                                     ItemsSource="{Binding Messages}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="2" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <Grid Grid.Row="2" Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="MessageInput"
+                                         Text="{Binding DraftMessage, UpdateSourceTrigger=PropertyChanged}"
+                                         IsEnabled="{Binding IsConnected}"
+                                         VerticalContentAlignment="Center"
+                                         ToolTip="Type a message and press Enter"
+                                         KeyDown="MessageInput_KeyDown" />
+                                <Button Grid.Column="1"
+                                        Content="Send"
+                                        IsEnabled="{Binding IsConnected}"
+                                        Margin="10,0,0,0"
+                                        Click="Send_Click" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </TabItem>
+                <TabItem Header="Board">
+                    <Grid Margin="12">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                            <TextBlock DockPanel.Dock="Right"
+                                       Text="{Binding CurrentRoom, StringFormat=Room: {0}}"
+                                       Foreground="#CBD5E1"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Select"
+                                        Background="#334155"
+                                        Click="SelectBoardTool_Click" />
+                                <Button Content="Draw"
+                                        Background="#334155"
+                                        Click="DrawBoardTool_Click" />
+                                <Button Content="Text"
+                                        Background="#334155"
+                                        Click="TextBoardTool_Click" />
+                                <Button Content="Delete selected"
+                                        Background="#B91C1C"
+                                        Click="DeleteBoardObject_Click" />
+                                <Button Content="Sync"
+                                        Background="#334155"
+                                        Margin="0"
+                                        IsEnabled="{Binding IsConnected}"
+                                        Click="SyncBoard_Click" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <Border Grid.Row="1"
+                                Background="#F8FAFC"
+                                BorderBrush="#334155"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                ClipToBounds="True">
+                            <Canvas x:Name="BoardCanvas"
+                                    Background="#F8FAFC"
+                                    Focusable="True"
+                                    ClipToBounds="True"
+                                    MouseLeftButtonDown="BoardCanvas_MouseLeftButtonDown"
+                                    MouseMove="BoardCanvas_MouseMove"
+                                    MouseLeftButtonUp="BoardCanvas_MouseLeftButtonUp"
+                                    PreviewKeyDown="BoardCanvas_PreviewKeyDown" />
+                        </Border>
+
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+    </Grid>
+</Window>
